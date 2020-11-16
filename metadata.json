@@ -1,0 +1,10 @@
+{
+	"description" : "Show the current hamster activity",
+	"name" : "Hamster activity",
+	"shell-version" : [
+		"3.38.1"
+	],
+	"url" : "http://edonan.gmail.com/hamster-activity",
+	"uuid" : "hamster-activity@edonan.gmail.com",
+	"version" : 1
+}
