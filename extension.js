@@ -1,4 +1,4 @@
-const {St, GLib, Clutter} = imports.gi;
+const {St, GLib, Clutter, Gio} = imports.gi;
 const Main = imports.ui.main;
 const Util = imports.misc.util;
 const Mainloop = imports.mainloop;
@@ -6,6 +6,27 @@ const Mainloop = imports.mainloop;
 const max_task_length = 25;
 
 let panelButton, panelButtonText, timeout;
+
+// cfr. https://andyholmes.github.io/articles/subprocesses-in-gjs.html#communicating-with-processes
+function readOutput(stdout) {
+  // the first call of this function will initiate the read
+  stdout.read_line_async(GLib.PRIORITY_LOW, null, (stdout, res) => {
+    setButtonText();
+    readOutput(stdout);
+  });
+}
+let proc = Gio.Subprocess.new(
+  [
+    "dbus-monitor",
+    "type='signal',sender='org.gnome.Hamster',interface='org.gnome.Hamster'"
+  ],
+  Gio.SubprocessFlags.STDOUT_PIPE
+);
+proc.wait_async(null, (proc, null));
+let stdoutStream = new Gio.DataInputStream({
+  base_stream: proc.get_stdout_pipe(),
+  close_base_stream: true
+});
 
 function setButtonText () {
     
@@ -55,7 +76,8 @@ function init () {
 
 function enable () {
   Main.panel._rightBox.insert_child_at_index(panelButton, 1);
-  timeout = Mainloop.timeout_add_seconds(10.0, setButtonText);
+  readOutput(stdoutStream);
+  timeout = Mainloop.timeout_add_seconds(360.0, function() {});
 }
 
 function disable () {
