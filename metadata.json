@@ -4,7 +4,7 @@
 	"shell-version" : [
 		"3.38.1"
 	],
-	"url" : "http://edonan.gmail.com/hamster-activity",
+	"url" : "https://github.com/etuardu/hamster-activity-shell-extension",
 	"uuid" : "hamster-activity@edonan.gmail.com",
 	"version" : 1
 }
