@@ -40,10 +40,7 @@ class HamsterWatcher {
     );
   }
   disable() {
-    if (this.timer) {
-      //clearInterval(this.timer);
-      GLib.Source.remove(this.timer);
-    }
+    this.unsetTimer();
     if (this.proxy && this.connId) {
       this.proxy.disconnectSignal(this.connId);
       this.connId = 0;
@@ -74,25 +71,18 @@ class HamsterWatcher {
   }
   /**
    * Read and store the current activity, invoke the callback
-   * and set a timer to invoke it every minute when an activity
-   * is running in order to keep the elapsed time updated.
+   * and set the timer when an activity is running
    */
   async onFactsChanged() {
     this.activity = await this.getCurrentActivity();
-    this.trigger();
+
     if (this.activity) {
-      //this.timer = setInterval(this.trigger, 1000 * 60);
-      this.timer = GLib.timeout_add(
-        GLib.PRIORITY_DEFAULT,
-        1000 * 60,
-        this.trigger.bind(this),
-      );
+      this.setTimer();
     } else {
-      if (this.timer) {
-        //clearInterval(this.timer);
-        GLib.Source.remove(this.timer);
-      }
+      this.unsetTimer();
     }
+
+    this.trigger();
   }
   /**
    * Return a promise with the current activity in the form:
@@ -115,6 +105,26 @@ class HamsterWatcher {
         resolve(null);
       });
     });
+  }
+  /**
+   * Schedule an invokation of the trigger function every minute
+   * in order to keep the elapsed time updated.
+   */
+  setTimer() {
+    this.unsetTimer();
+    //this.timer = setInterval(this.trigger, 1000 * 60);
+    this.timer = GLib.timeout_add(
+      GLib.PRIORITY_DEFAULT,
+      1000 * 60,
+      this.trigger.bind(this),
+    );
+  }
+  unsetTimer() {
+    if (this.timer) {
+      //clearInterval(this.timer);
+      GLib.Source.remove(this.timer);
+      this.timer = null;
+    }
   }
   /**
    * Convert an amount of milliseconds into a string in
