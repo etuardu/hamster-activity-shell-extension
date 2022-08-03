@@ -6,7 +6,7 @@ const GLib = imports.gi.GLib;
 imports.package.initFormat();
 // add a C-like format method to string objects
 
-class HamsterWatcher {
+var HamsterWatcher = class HamsterWatcherClass {
   constructor(callback) {
     this.ProxyClass = Gio.DBusProxy.makeProxyWrapper(
       `<node>
